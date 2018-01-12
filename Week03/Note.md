@@ -78,3 +78,19 @@
   // "~Component()"由编译器添加函数
   Container::~Container(...): {.... ~Component() }; 
   ```
+
+---
+#### 未整理
+1. Composition+Inheritance 关系下的构造和析构
+  - 做一个练习--Derived有一个Component,考虑是Base先构造还是先Component
+2. Delegation+Inheritance
+  - Composite---add不能写成纯虚函数，因为Primitive没有add的动作，如文件是不能有+的动作的，只有文件夹才有
+  - Prototype
+    - 创建未来的对象，需要每个子类自己创建一个自己给父类，让父类可以看到
+    - 利用addPrototype挂到父类上去
+
+  - 代码图：
+    - 先写名字，在写类型（如果必要）
+    - 负号代表private,#代表protected,正好or不写代表public
+
+
