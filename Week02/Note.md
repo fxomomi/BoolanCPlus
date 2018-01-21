@@ -62,7 +62,11 @@
 - System Heap, 由操作系统提供的一块 global 内存空间，程序可动态分配从中获得若干区块
 - **要配合使用 delete 或 delete[] 进行释放**,否则会造成内存泄漏
 
+<<<<<<< HEAD
 #### 其他内存块 [[参考]](https://www.cnblogs.com/findumars/p/5929831.html?utm_source=itdadao&utm_medium=referral)
+=======
+#### 其他内存块 [参考](https://www.cnblogs.com/findumars/p/5929831.html?utm_source=itdadao&utm_medium=referral)
+>>>>>>> a2372335b74790c1985cd48f7ae25377513cade4
 - 自由存储区：就是那些由malloc等分配的内存块，他和堆是十分相似的，使用free来释放内存
 - 全局/静态存储区：全局变量和静态变量被分配到同一块内存中(在以前的C语言中，全局变量又分为初始化的和未初始化的，在C++里面没有这个区分了，他们共同占用同一块内存区)
 - 常量存储区：一块比较特殊的存储区，里面存放的是常量，不允许修改。
@@ -86,8 +90,14 @@
   2. 生命在它被 delete 之际结束，调用其析构函数
   3. 若未 delete 则会造成 memory leak(指针p的生命已经结束了，但所致的heap object仍存在)
 
+<<<<<<< HEAD
 ### 3. new & delete
 #### new 与 构造
+=======
+
+### 3. new 与 构造, delete 与 析构
+#### new
+>>>>>>> a2372335b74790c1985cd48f7ae25377513cade4
 - 先分配 memory, 再调用 ctor
 - `Complex* pc = new Complex(1,2);` ==> 
 
