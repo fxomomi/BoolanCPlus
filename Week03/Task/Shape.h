@@ -1,15 +1,19 @@
 #ifndef __MYSHAPE__
 #define __MYSHAPE__
+#include <stdio.h>
 #include <time.h>
 #include <iostream>
 using namespace std;
 
 /*
 要点：
-  1、拷贝构造、拷贝赋值一定要优先调用父类的对应函数
-  2、任何涉及指针的操作一定要考虑nullptr的情况
-  3. 一个保存父类指针的数组用于同属存放指向 Rectangle 和 Circle 的指针
-  4. 指针 + 虚函数 调用到格子对应的 getArea() 函数
+  1. 父类指针指向子类对象，用一个父类指针数组去存放指向 Rectangle 和 Circle
+的指针
+  2. 通过虚函数调用到各子类对应的 getArea() 函数
+  3. 父类的析构函数一定要设计为虚析构函数，否则 delete
+父类指针时无法调用到子类的析构函数
+  4. new 出的 Heap 内存空间，在使用完毕后一定要 delete 掉，包括 Rectangle、Circle
+对象 和 指针数组
 */
 
 const double PI = 3.1415926;
@@ -19,8 +23,7 @@ class Shape {
  public:
   Shape(int no = 0) : no(no) {}  // Shape 构造函数
   virtual int getArea() = 0;
-  virtual ~Shape() {
-  }  // 虚析构函数，否则用基类指针指向子类对象时，delete不会调用子类的析构函数
+  virtual ~Shape() {}  // 虚析构函数
   // for test
   virtual void Print() = 0;
 
@@ -47,16 +50,22 @@ class Point {
 class Rectangle : public Shape {
  public:
   Rectangle(int no, int width, int height, int x, int y);  // 构造函数
-  Rectangle(const Rectangle& other);                       // 拷贝构造
-  Rectangle& operator=(const Rectangle& other);            // 拷贝赋值
-  ~Rectangle() {}                                          // 析构函数
+  Rectangle(const Rectangle &other);                       // 拷贝构造
+  Rectangle &operator=(const Rectangle &other);            // 拷贝赋值
+  ~Rectangle() {                                           // 析构函数
+    // for test
+    cout << "Rectangle Destory" << endl;
+  }
+
   int getArea();
-  
+
   // for test
   void Print() {
-    cout << "No: " << this->GetNo() << " xRay: " << this->leftUp.GetX() << " yRay: " << this->leftUp.GetY() << 
-     " Width: " << this->width << " Height: " << this->height << " Area: " << this->getArea() << endl;
-  } 
+    printf(
+        "No: %2d  xRay: %2d  yRay: %2d  Width: %2d  Height: %2d  Area: %3d\n",
+        this->GetNo(), this->leftUp.GetX(), this->leftUp.GetY(), this->width,
+        this->height, this->getArea());
+  }
 
  private:
   int width;
@@ -66,16 +75,20 @@ class Rectangle : public Shape {
 class Circle : public Shape {
  public:
   Circle(int no, int radius, int x, int y);  // 构造函数
-  Circle(const Circle& other);               // 拷贝构造
-  Circle& operator=(const Circle& other);    // 拷贝赋值
-  ~Circle() {}                               // 析构函数
+  Circle(const Circle &other);               // 拷贝构造
+  Circle &operator=(const Circle &other);    // 拷贝赋值
+  ~Circle() {                                // 析构函数
+    // for test
+    cout << "Circle Destory" << endl;
+  }
   int getArea();
 
   // for test
   void Print() {
-    cout << "No: " << this->GetNo() << " xRay: " << this->center.GetX() << " yRay: " << this->center.GetY()
-      << " Radius: " << this->radius << " Area: " << this->getArea() << endl;
-  } 
+    printf("No: %2d  xRay: %2d  yRay: %2d  Radius: %2d  Area: %3d\n",
+           this->GetNo(), this->center.GetX(), this->center.GetY(),
+           this->radius, this->getArea());
+  }
 
  private:
   Point center;
@@ -84,23 +97,24 @@ class Circle : public Shape {
 /* ---------- Class Declaration End ---------- */
 
 /* ---------- Global Function Implementation End ---------- */
-// 由调用者分配内存 buff, 并指定生成 recNum 个 Rectangle, cirNum 个 Circle
-// void CreateRecAndCir(Shape* buff[], int recNum, int cirNum);
-// 过滤掉 buff 中面积小于 minArea 的对象，返回新数组的大小
-// int FilterShape(Shape* buff[], int size, int minArea);
+// 如题设要求随机生成10个Rectangle、10个Circle，并返回一个指针数组
+// 每一个数组元素都指向一个Rectangle or Circle
+Shape **CreateRecAndCir();
+// 过滤掉 buff 中面积小于 minArea 的对象，并返回删除后数组的大小
+int FilterShape(Shape **buff, int minArea);
 /* ---------- Global Function Implementation End ---------- */
 
 /* ---------- Rectangle Implementation Begin ---------- */
 inline Rectangle::Rectangle(int no, int width, int height, int x, int y)
     : Shape(no), width(width), height(height), leftUp(x, y) {}
 
-inline Rectangle::Rectangle(const Rectangle& other)
+inline Rectangle::Rectangle(const Rectangle &other)
     : Shape(other),  // 优先调用基类的拷贝构造
       width(other.width),
       height(other.height),
       leftUp(other.leftUp.GetX(), other.leftUp.GetY()) {}
 
-inline Rectangle& Rectangle::operator=(const Rectangle& other) {
+inline Rectangle &Rectangle::operator=(const Rectangle &other) {
   if (this == &other) {
     return *this;
   }
@@ -112,21 +126,19 @@ inline Rectangle& Rectangle::operator=(const Rectangle& other) {
   return *this;
 }
 
-inline int Rectangle::getArea() {
-  return this->width * this->height;
-}
+inline int Rectangle::getArea() { return this->width * this->height; }
 /* ---------- Rectangle Implementation End ---------- */
 
 /* ---------- Circle Implementation Begin ---------- */
 inline Circle::Circle(int no, int radius, int x, int y)
     : Shape(no), center(x, y), radius(radius) {}
 
-inline Circle::Circle(const Circle& other)
+inline Circle::Circle(const Circle &other)
     : Shape(other),
       center(other.center.GetX(), other.center.GetY()),
       radius(other.radius) {}
 
-inline Circle& Circle::operator=(const Circle& other) {
+inline Circle &Circle::operator=(const Circle &other) {
   if (this == &other) {
     return *this;
   }
@@ -137,19 +149,15 @@ inline Circle& Circle::operator=(const Circle& other) {
   return *this;
 }
 
-inline int Circle::getArea() {
-  return this->radius * this->radius * PI;
-}
+inline int Circle::getArea() { return this->radius * this->radius * PI; }
 /* ---------- Circle Implementation End ---------- */
 
 /* ---------- Global Function Implementation Begin ---------- */
 // 产生一个[min,max]间的随机数
-int RandNum(int min, int max) {
-  return (rand() % (max - min + 1)) + min;
-}
-Shape** CreateRecAndCir() {
+int RandNum(int min, int max) { return (rand() % (max - min + 1)) + min; }
+Shape **CreateRecAndCir() {
   srand((unsigned)time(NULL));  // 重置随机数种子
-  Shape** buff = new Shape*[20];
+  Shape **buff = new Shape *[20];
   for (int index = 0; index < 10; index++) {
     buff[index] = new Rectangle(index + 1, RandNum(1, 10), RandNum(1, 10),
                                 RandNum(1, 10), RandNum(1, 10));
@@ -160,19 +168,19 @@ Shape** CreateRecAndCir() {
   }
   return buff;
 }
-int FilterShape(Shape** buff, int minArea) {
+int FilterShape(Shape **buff, int minArea) {
   // left, right 指针用于指向 buff 的头和尾
-  Shape** left = buff;
-  Shape** right = buff + 19;
+  Shape **left = buff;
+  Shape **right = buff + 19;
   int size = 0;
   while (left <= right) {
     int area = (*left)->getArea();
     if (area < minArea) {
       // 将需要删除元素与数组末端元素进行交换
-      Shape* tmp = *left;
+      Shape *tmp = *left;
       *left = *right;
       *right = tmp;
-      // 删除掉末端元素，并将 rihgt 前移，注意要调用对象的析构
+      // 删除掉末端元素，并将 rihgt 前移，同时调用对应对象的析构函数
       delete *right;
       *right = nullptr;
       right--;
@@ -183,6 +191,6 @@ int FilterShape(Shape** buff, int minArea) {
   }
   return size;
 }
-/* ---------- Global Function Implementation End ---------- */
+  /* ---------- Global Function Implementation End ---------- */
 
 #endif
