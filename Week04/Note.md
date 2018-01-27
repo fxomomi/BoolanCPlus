@@ -1,11 +1,12 @@
-<<<<<<< HEAD
+
+# C++ 面向对象高级编程
 ## 目标
 - 培养正规大气的变成素养上，继续探讨更多技术。
 - 泛型变成和面向对象编程
 - this指针，vptr虚指针，vtbl虚表，vitual mechanism虚机制，virtual functions虚函数，Polymorphism多态
-=======
-# C++ 面向对象高级编程
-### 1.转换函数 
+---
+
+### 1. 转换函数 
 #### Conversion Function(转换函数)
     operator double() const {
       return (double)(m_numerator / m_denominator);
@@ -55,7 +56,7 @@
 - 此处有两种可能的路线
   - 调用 non-explicit ctro 将 4 转为 Fraction，再调用 operator+
   - 调用转换函数 double() 将 f 转为 double，在调用数学的加法，最后把结果通过 non-explicit ctor 转为 Fraction
-  - 因此会造成歧义
+  - **因此会造成歧义**
   
 #### **Explicit**-One-Argument Ctor
     explict Fraction(int num, int den=1)
@@ -67,7 +68,7 @@
 - 此时编译器不会吧 4 转换为 Fraction，因此会将 f 转换为 double 执行加法，最后在将结果转为 Fraction 的时候发现不行，报错
 ---
 
-### 2.Pointer-Like Classes
+### 2. Pointer-Like Classes
 #### 关于智能指针
     template<class T>
     class shared_ptr{
@@ -106,36 +107,37 @@
       typedef __list_iteraotr<T, Ref, Ptr> self;
       ...
       typedef __list_node<T>* link_type;
-      link_type_node;   // 真正的指针
+      link_type node;   // 真正的指针
       bool operator==(const self& x) const { return node == x.node;}
       ...
       reference operator*() const { return (*node).data; }
       pointer operator->() const { return &(operator*()); }
       ...
     };
-- 迭代器也是一种智能指针，主要用于遍历容器。因此处了要支持 operaotr* 和 operator-> 外，一般还支持 operator==, operator!=, operator++, operator--
+- 迭代器也是一种智能指针，主要用于遍历容器。因此除了要支持 operaotr* 和 operator-> 外，一般还支持 operator==, operator!=, operator++, operator--
 - 迭代器的 operator*，是需要获取 data 对象，因此需要返回 (\*node).data
 - 迭代器的 operator->，是需要调用 data 对象的引用(指向 data 的指针)。如 ite->method(); ==> Foo::method() ==> (*ite).method(); ==> **(&(\*ite)**->method();
 ---
 
-### 3.Function-Like Classes 
+### 3. Function-Like Classes 
     template <class T>
     struct identity ... {
       const T&;
       operator() (const T& x) const { return x; }
     }
-- 仿函数 function-lice classes
+#### 仿函数 function-lice classes
+- 
   - 新标准中又称为函数对象 function object
   - 行为类似函数的对象
-  - 通过重载 **operator()**, function call operator 实现
-- 为什么需要仿函数？
-  - 一般情况下函数指针可以达到“**将整租操作当做算法的参数**”这一目的 
-  - 函数指针不能满足 STL 对抽象性的要求，也不能满足软件积木的要求---函数指正无法和 STL 其他组件搭配，产生更灵活的变化。
-  - **是无法定义一个模板函数的指针的**
+  - 通过重载 **operator()** --- function call operator 实现
+- **为什么需要仿函数？**
+  - 一般情况下函数指针可以达到“**将整组操作当做算法的参数**”这一目的 
+  - 但函数指针不能满足 STL 对抽象性的要求，也不能满足软件积木的要求---函数指正无法和 STL 其他组件搭配，产生更灵活的变化。
+  - **是无法定义一个指向模板函数的指针的**
 - 用法：
   - `greater<int> ig; ig(4,6);`
-  - `greater<int>()(6,4)` 第一个括号用于产生临时变量，第二个括号用于function call
-- 应用场景
+  - `greater<int>()(6,4)` 第一个括号用于产生临时变量，第二个括号用于调用 function call
+- 场景
   ```
   template <typename T>
   class functor {
@@ -147,10 +149,225 @@
     ...
   }
   ```
-- 详情可参考 <<STL 源码剖析>> p413
+- 详情可参考 **<<STL 源码剖析>>** p413
+
+#### 奇特的 base classes
+  - ```
+    template <class Arg, class Result>
+    struct unary_function {
+      typedef Arg argument_type;
+      typedef Result result_type;
+    };
+
+    template <class Arg1, class Arg2, class Result>
+    struct binary_function {
+      typedef Arg1 first_argument_type;
+      typedef Arg2 second_argument_type;
+      typedef Result result_type;
+    };    
+    ```
+  - less<int>::result_type ==> bool
+  - 上述两个class大小理论值为0，但实际值可能为1(sizeof)
+  - TODO:为什么要这样继承？
+---
+
+### 4. 模板
+#### Class Template 类模板
+    template<typename T>
+    class complex {
+      public:
+        complex (T r = 0, T i = 0) : re(r), im(i) {}
+        ....
+      private:
+        T re, im;
+    }
+- 使用者在使用时才指定 T 的类型 `complex<double> c1(2.5, 1.5);`
+
+#### Function Template 函数模板
+    template <class T>
+    inline const T& min(const T& a, const T& b){
+      return b < a ? b : a;
+    }
+- 使用时不必指明 Type，编译器会进行**实参推导（argument deduction）**,`r3 = min(r1, r2);`
+- 模板在使用时会和使用代码一起编译一次，此时如果使用不当可能会报错。如上述 r1 和 r2 为 stone 类型时，会调用 stone::operator< ，若未定义则无法通过编译。
+
+#### Member Template 成员模板
+    template <class T1, class T2>
+    struct pair {
+      typedef T1 first_type;
+      typedef T2 second_type;
+
+      T1 first;
+      T2 second;
+      ....
+      // begin
+      template <class U1, class U2>
+      pair(const pair<U1, U2>& p) : first(p.first), second(p.second) {}
+      //end
+    }
+- 是模板里的一个 Member，本身又是一个 Template
+- 子类对象初始化父类容器
+  - 图 p28右上角
+  - 把一个由鲫鱼和麻雀构成的 pair，放进(拷贝)一个由鱼类和鸟类构成的 pair 中
+  - ```
+    pair<Derived1, Derived2> p;
+    pair<Base1, Base2> p2(p);  // 用子类对象构造的 p 去初始化父类的容器 p2，等价于
+    ==> pair<Base1, Base2> p2(pair<Derived1, Derived2>())
+    ```
+- 模拟指针的 up-cast 操作
+  - ```
+    template<typename _Tp>
+    class shared_ptr : public __shared_ptr<_Tp>{
+      ...
+      template<typename _Tp1>
+      explicit shared_ptr(_Tp1* __p)  
+       : __shared_ptr<_Tp(__p) { }
+      ...
+    };
+
+    Base1* ptr = new Derived1;  // 用父类指针指向子类对象，up-cast
+    shared_ptr<Base1> sptr(new Derived1); // 模拟 up-cast
+    ```
+--- 
+
+### 5. Specialization 模板特化 
+#### Full Specialization 特化（全特化）
+    // 泛化
+    template <class Key>
+    struct hash { };
+
+    // char 的特化版本
+    template<>
+    struct hash<char> {
+      size_t operator() (char x) const { return x; }
+    };
+
+    // int 的特化版本
+    template<>
+    struct hash<int> {
+      size_t operator() (int x) const { return x; }
+    };
+- 特化 --- 绑定模板泛化的部分，绑定后 template 后面尖括号内的内容无需写`template <>`
+
+#### Parital Specialization 偏特化
+- **个数** 的偏
+  - ```
+    // 泛化
+    template<typename T, typename Alloc=...>  // 模板参数
+    class vector {
+      ....
+    };
+    
+    // 偏特化
+    template<typename Alloc=...>
+    class vector<bool, Alloc> { // bool 型只占1个字节，因此可能需要一些特殊的处理
+      ....
+    };
+    ```
+  - 只部分绑定了 T，因此尖括号内的 Alloc 还需要写`template<typename Alloc=...>`
+  - 绑定只能**从左到右**，不能绑定了1,3,5，不绑定2,4,6
+- **范围** 的偏
+  - ```
+    // 泛化
+    template <typename T>
+    class C {
+      ....
+    };
+
+    // 偏特化
+    template <typename T>   --- 此处的 teypname T 不能省略
+    class C<T*> {
+      ....
+    };
+    ```
+  - `C<string> obj1;`  --- 调用泛化版本
+  - `C<string*> obj1;` --- 调用偏特化版本
+  - 范围的偏 --- 缩小范围，如从任意类型 ==> 指针类型
+--- 
+
+### 6.Template Template Parameter 模板模板参数
+    template<typename T
+            template <typename T>  --- 拿第一个模板参数作为自身的参数
+              class Container 
+            >
+    class XCls {
+      private:
+        Container<T> c;
+      public:
+        ....
+    };
+- 模板模板参数 --- 模板作为模板的参数，即模板参数本身是一个模板
+- 用法：
+  - `XCls<string, list> mylst1;` --- 此代码编译会报错，并不是由于模板模板参数造成，而是由于 list 在初始化时需要指定第二参数 alloc，且**不会自动利用默认参数**。
+  - ```
+    template<typename T>
+    using Lst = list<T, allocator<T>>;   // C++2.0 新加语法，用于解决上述的问题
+    XCls<string, Lst> mylst2;            // 编译通过
+    ``` 
+- **不是模板模板参数**
+  - ```
+    template <class T, class Sequence = deque<T>>
+    class stack {
+      ....
+    };
+    ```
+  - 上述代码中的 `class Sequence = deque<T>` 不是一个模板模板参数
+  - `stack<int, list<int>> s1;` --- 此时的 list<int> 已经不是一个模板了，已经没有泛化的部分了
+---
+
+> Algorithms + Data Structures = Progams
+ - page36
+
+### 7. C++11  
+> Tips: macro __plusplus 用于确认 C++ 的版本，199711 为 C++97,201103 为 C++11
+#### Variadic Templates(since C++11)
+- page41
+  - "..." 就是一个所谓的 pack (包)
+  - 用于 template parameters, 就是 template parameters pack (模板参数包)
+  - 用于 template parameters types, 就是 template parameters types pack (模板参数类型包)
+  - 用于 function parameters, 就是 function parameters pack (函数参数包)
+- *sizeof...(args)* 用于获取 args 的个数
+
+#### Auto(since C++11)
+    // 旧版本定义一个 iterator
+    list<string> c;
+    ....
+    list<string>::iterator ite;
+    ite = find(c.begin(), c.end(), target);
+
+    // 新版本定义 
+    list<string> c;
+    ....
+    auto ite = find(c.begin(), c.end(), target);
+- 编译器会自己推算出的版本
+- `auto ite; ite = ....` 是**错误**的，编译器无法推算出 ite 的类型
+
+#### Ranged-Base for(since C++11)
+    for ( decl : coll ) { 
+      statement
+    }
+    ==>
+    for ( int i : {1, 2, 3, 5, 7, 9} ) {
+      cout << i << endl;
+    }
+- 把容器内的每个元素都遍历一遍
+- page43
+  - 当需要改变元素的值时需要使用 pass by reference 
+--- 
+
+### 8. Reference
+> 引用就是指针，一种 **漂亮** 的指针
+- page44
+  - 引用在声明时一定要有**初值**
+  - 赋值后其值不能再变改变
+  - reference 本质上只占 4 byte(32位系统), 但 sizeof(x) == sizeof(r)
+  - &x == &r
+- reference 通常不用于声明变量，而用于 *参数类型(parameters type)* 和 *返回类型(return type)* 的描述
+- 引用和值被视为同意中函数签名，因此不能只有两者不同时不能用于函数重载
+  - ```
+    double imag(const double& im) { .... }
+    double imag(const double  im) { .... } // Ambiguity
+    ```
+> const 是函数签名的一部分 `double imga() {}` 和 `double imga() const {}` 是两个不同的函数
 
 
-
-
-
->>>>>>> a2372335b74790c1985cd48f7ae25377513cade4
