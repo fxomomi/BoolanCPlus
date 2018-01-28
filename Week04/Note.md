@@ -1,4 +1,3 @@
-
 # C++ 面向对象高级编程
 ## 目标
 - 培养正规大气的变成素养上，继续探讨更多技术。
@@ -6,6 +5,7 @@
 - this指针，vptr虚指针，vtbl虚表，vitual mechanism虚机制，virtual functions虚函数，Polymorphism多态
 ---
 
+## 一、模板
 ### 1. 转换函数 
 #### Conversion Function(转换函数)
     operator double() const {
@@ -19,7 +19,7 @@
 - 没有参数
 - 转换不会改变 class 里面的 data,所以要加 const
 - 任何一个Type都能作为转换函数，只要先前声明过，编译器认识
-- 作用：可以把**这种东西**转换成**别的东西**
+- 作用：可以把 **这种东西** 转换成 **别的东西**
 
 <br>
 
@@ -207,7 +207,8 @@
     }
 - 是模板里的一个 Member，本身又是一个 Template
 - 子类对象初始化父类容器
-  - 图 p28右上角
+  - ![](http://upload-images.jianshu.io/upload_images/9987091-2ce42a8c46643f54.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
   - 把一个由鲫鱼和麻雀构成的 pair，放进(拷贝)一个由鱼类和鸟类构成的 pair 中
   - ```
     pair<Derived1, Derived2> p;
@@ -315,20 +316,21 @@
   - `stack<int, list<int>> s1;` --- 此时的 list<int> 已经不是一个模板了，已经没有泛化的部分了
 ---
 
-> Algorithms + Data Structures = Progams
- - page36
+## 二、C++11
+  - ![](http://upload-images.jianshu.io/upload_images/9987091-fed95f831ca75122.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
-### 7. C++11  
+> Algorithms + Data Structures = Progams
 > Tips: macro __plusplus 用于确认 C++ 的版本，199711 为 C++97,201103 为 C++11
-#### Variadic Templates(since C++11)
-- page41
+### 1. Variadic Templates(since C++11)
+![](http://upload-images.jianshu.io/upload_images/9987091-013762a864479dbc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
   - "..." 就是一个所谓的 pack (包)
   - 用于 template parameters, 就是 template parameters pack (模板参数包)
   - 用于 template parameters types, 就是 template parameters types pack (模板参数类型包)
   - 用于 function parameters, 就是 function parameters pack (函数参数包)
 - *sizeof...(args)* 用于获取 args 的个数
 
-#### Auto(since C++11)
+### 2. Auto(since C++11)
     // 旧版本定义一个 iterator
     list<string> c;
     ....
@@ -342,7 +344,7 @@
 - 编译器会自己推算出的版本
 - `auto ite; ite = ....` 是**错误**的，编译器无法推算出 ite 的类型
 
-#### Ranged-Base for(since C++11)
+### 3. Ranged-Base for(since C++11)
     for ( decl : coll ) { 
       statement
     }
@@ -351,13 +353,15 @@
       cout << i << endl;
     }
 - 把容器内的每个元素都遍历一遍
-- page43
-  - 当需要改变元素的值时需要使用 pass by reference 
---- 
+![](http://upload-images.jianshu.io/upload_images/9987091-a4e3eceec176ff66.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
-### 8. Reference
+  - 当需要改变元素的值时需要使用 pass by reference 
+
+### 4. Reference(补充)
 > 引用就是指针，一种 **漂亮** 的指针
-- page44
+
+![](http://upload-images.jianshu.io/upload_images/9987091-7dd356b4328aa0f9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
   - 引用在声明时一定要有**初值**
   - 赋值后其值不能再变改变
   - reference 本质上只占 4 byte(32位系统), 但 sizeof(x) == sizeof(r)
@@ -369,5 +373,40 @@
     double imag(const double  im) { .... } // Ambiguity
     ```
 > const 是函数签名的一部分 `double imga() {}` 和 `double imga() const {}` 是两个不同的函数
+---
+
+## 三、Object Model 对象模型 
+### 1. vptr 和 vtbl
+![](http://upload-images.jianshu.io/upload_images/9987091-0b12bf7909f67526.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+  - vptr --- 虚指针，指向虚表 vtbl, 一个类中只要有虚函数，就会有一个 vptr
+    - 函数继承的是调用权，父类有虚函数，子类一定就也有
+  - vtbl --- 虚表，存放所有虚函数的函数指针（地址哈哈）
+  - C 语法：`(*(p->vptr)[n])(p); or  (* p->vptr[n] )(p);`
+- **动态绑定三要素**
+  - 函数通过 **指针** 调用
+  - 指针向上转型 **up-cast** --- `A* p = new B(); // 父类指针指向子类对象` 
+  - 调用的是 **虚函数**
+
+### 2. 多态
+![](http://upload-images.jianshu.io/upload_images/9987091-adfa8ec4b412697b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+  - `list<A*> myLst;` 通过父类指针容器存放不同的子类对象
+  - 通过指针指向对象的不同调用不一样的 draw() 函数
+  - 若用 C 来实现多态，一是写起来麻烦，需要判断指针指向的对象类型来调用不一样的 draw() 函数；二是缺乏扩展性，未来新增子类时还需重新更改判断的代码。
+
+### 3. Template Method
+![](http://upload-images.jianshu.io/upload_images/9987091-32b1212be4e60bd6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+  - “谁” 调用 “谁” 就是 **this** 指针
+  - 通过虚函数的动态绑定机制，来实现模板方法。
+
+### 4. Dynamic Binding
+![](http://upload-images.jianshu.io/upload_images/9987091-19ee87c7813e85c3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](http://upload-images.jianshu.io/upload_images/9987091-e251c0ff917c09b4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 
+  - `a.vfunc1()` 属于静态绑定，调用是 `A::vfunc1()` 利用对象调用，不满足动态绑定的要求，对象是谁，调用的就是谁的方法
+  - `pa->vfunc1() ==> call dword ptr [edx]` 即是 `(*(p->vptr)[n])(p)` 
+---
+字节对齐：http://blog.csdn.net/hairetz/article/details/4084088
