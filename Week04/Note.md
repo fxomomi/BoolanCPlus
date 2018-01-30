@@ -410,3 +410,26 @@
   - `pa->vfunc1() ==> call dword ptr [edx]` 即是 `(*(p->vptr)[n])(p)` 
 ---
 字节对齐：http://blog.csdn.net/hairetz/article/details/4084088
+
+
+## 四、补充
+### 1. Const
+- page58 表格
+  - 函数加上 const, 是告诉编译器该成员函数不会改变 class 的 data
+  - 只有成员函数有 const, 一般全局函数没有 const
+- 当成员函数的 const 和 non-const 版本同时存在时
+  - **const** object 只能调用 const 版本
+  - non-cosnt object 只能调用 non-const 版本
+#### 示例
+    charT
+    operator[](size_type) const {
+      ....../* 不必考虑 COW */ 
+    }
+    reference 
+    operator[](size_type) {
+      ....../* 必须考虑 COW */ 
+    }
+    // COW: Copy On Write
+- 标准库的`class template std::basic_string<>` 中有上述两个函数
+- 标准库的 String 采用引用计数的规则，因此当有人想改变字符串时，必须考虑COW
+### 2. 动态分配 New & Delete
