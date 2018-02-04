@@ -410,3 +410,11 @@
   - `pa->vfunc1() ==> call dword ptr [edx]` 即是 `(*(p->vptr)[n])(p)` 
 ---
 字节对齐：http://blog.csdn.net/hairetz/article/details/4084088
+
+## 四、要点补充 
+### 1. Const
+- const 只能放在成员函数后面，全局函数是不能放 const 的
+- page
+  - 
+
+### 2. 动态分配 - new & delete
