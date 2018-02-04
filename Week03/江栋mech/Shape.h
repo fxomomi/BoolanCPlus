@@ -20,7 +20,7 @@ private:
 	int no;
 	static int cnt;
 };
-int Shape::cnt = 0;        // ¾²Ì¬±äÁ¿ÒªÔÚÀàµÄbodyÍâÃæ¸³Öµ 
+int Shape::cnt = 0;        // é™æ€å˜é‡è¦åœ¨ç±»çš„bodyå¤–é¢èµ‹å€¼ 
               
 class Point
 {
@@ -33,7 +33,7 @@ public:
 	int get_y() const { return y;}
 };
 
-// Rectangle Àà¶¨Òå 
+// Rectangle ç±»å®šä¹‰ 
 class Rectangle: public Shape
 {
 private:   
@@ -61,12 +61,12 @@ Rectangle::Rectangle(int w = 0, int h = 0, int x = 0, int y = 0): width (w), hei
 inline
 Rectangle::~Rectangle()
 {
-	delete leftUp;    // newµÄ¶ÔÏóÊÇÖ¸Õë£¬²»ÊÇarray new 
+	delete leftUp;    // newçš„å¯¹è±¡æ˜¯æŒ‡é’ˆï¼Œä¸æ˜¯array new 
 	leftUp = nullptr;
 }
 
 inline
-Rectangle::Rectangle(const Rectangle& other): Shape(other),        // Shape(other) ÆäÊµÊÇcopyÁË¸¸Àà£¨¾ßÌåÊÇother£©µÄÒ»·İÊı¾İ¡£ 
+Rectangle::Rectangle(const Rectangle& other): Shape(other),        // Shape(other) å…¶å®æ˜¯copyäº†çˆ¶ç±»ï¼ˆå…·ä½“æ˜¯otherï¼‰çš„ä¸€ä»½æ•°æ®ã€‚ 
 width(other.width), height(other.height)
 {
     if(other.leftUp != nullptr){
@@ -82,7 +82,7 @@ Rectangle& Rectangle::operator=(const Rectangle& other)
 {
 	if(this == &other)  
 	    return *this;
-	Shape::operator=(other);       // ¶ÔthisÓÃÁË»ùÀàµÄoperator=£¬Îªthis copyÁË¸¸Àà£¨¾ßÌåÊÇother£©µÄno¡£µÚ9ĞĞ¡£ 
+	Shape::operator=(other);       // å¯¹thisç”¨äº†åŸºç±»çš„operator=ï¼Œä¸ºthis copyäº†çˆ¶ç±»ï¼ˆå…·ä½“æ˜¯otherï¼‰çš„noã€‚ç¬¬9è¡Œã€‚ 
 	width = other.width;     
 	height = other.height;
 	
@@ -108,7 +108,7 @@ Rectangle& Rectangle::operator=(const Rectangle& other)
 
 
 
-// Circle Àà¶¨Òå£¬ºÍ Rectangle Àà½á¹¹Ò»ÖÂ 
+// Circle ç±»å®šä¹‰ï¼Œå’Œ Rectangle ç±»ç»“æ„ä¸€è‡´ 
 extern const double PI;
 
 class Circle: public Shape

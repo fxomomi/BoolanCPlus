@@ -422,10 +422,7 @@
 - 当成员函数的 const 和 non-const 版本同时存在时
   - **const** object 只能调用 const 版本
   - non-cosnt object 只能调用 non-const 版本
-- ```
-  const String str("hello world")
-  str.print();
-  ```
+- `const String str("hello world") str.print();`
   - 若设计时未将 print() 函数指明为 const, 则在用const Object 调用 non-cosnt member function 时会出错。
 #### 示例
     charT
@@ -466,6 +463,7 @@
     ....
   }
   ```
+  - 上述函数不可以被声明于一个 namespace 内
   - 上述函数由编译器自动调用（上述表达式 new 和 delete 的分解步骤中）
   - 在构造对象时使用`::new`可强制使用 globals 的版本 `Foo* pf = ::new Foo;`
   - 对于全局的重载要格外小心，这些影响 **无远弗届**
