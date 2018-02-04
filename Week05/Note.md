@@ -1,3 +1,4 @@
+
 # C++ 面向对象高级编程
 ## 目标
 - 培养正规大气的变成素养上，继续探讨更多技术。
@@ -411,21 +412,18 @@
 ---
 字节对齐：http://blog.csdn.net/hairetz/article/details/4084088
 
-
 ## 四、补充
 ### 1. Const
 - const member functions 常量成员函数
   - `const `加在 () 和 {} 之间 `double real () const { return re; }` 
   - 函数加上 const, 是告诉编译器该成员函数不会改变 class 的 data
   - 只有成员函数有 const, 一般全局函数没有 const
-- page58 表格
+![](http://upload-images.jianshu.io/upload_images/9987091-ecfd9635159f9586.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 - 当成员函数的 const 和 non-const 版本同时存在时
   - **const** object 只能调用 const 版本
   - non-cosnt object 只能调用 non-const 版本
-- ```
-  const String str("hello world")
-  str.print();
-  ```
+- `const String str("hello world") str.print();`
   - 若设计时未将 print() 函数指明为 const, 则在用const Object 调用 non-cosnt member function 时会出错。
 #### 示例
     charT
@@ -466,6 +464,7 @@
     ....
   }
   ```
+  - 上述函数不可以被声明于一个 namespace 内
   - 上述函数由编译器自动调用（上述表达式 new 和 delete 的分解步骤中）
   - 在构造对象时使用`::new`可强制使用 globals 的版本 `Foo* pf = ::new Foo;`
   - 对于全局的重载要格外小心，这些影响 **无远弗届**
@@ -490,7 +489,13 @@
   ```
   - 数组中构造个对象的构造顺序与析构顺序相反，先构造的后析构，后构造的先析构
 - 示例
-  - page63~65
+
+![](http://upload-images.jianshu.io/upload_images/9987091-5f937c5482f5721a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+![](http://upload-images.jianshu.io/upload_images/9987091-8cb8ca2ff706230f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+![](http://upload-images.jianshu.io/upload_images/9987091-96867bb75434f713.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 - 重载多版本 new(), delete()
   - 可重载多个版本的 class member operator new()
     1. 每个版本都必须有 **独特** 的参数列
@@ -501,8 +506,8 @@
     2. 仅当 对应版本的 operator new 所调用的 ctor 抛出 exception 时，才会调用这些重载版本的 opeartor delete(), 只要用来归还未能完成创建功能的 object 所占用的 memory
     3. **opeartor delete(...) 未能一一对应于 operator new(...) 也不会报错** -- 代表设计者放弃处理 ctor 发出的异常
   - 应用 --- basic_string 使用 new(extra) 扩充申请量
-    - page69
+![](http://upload-images.jianshu.io/upload_images/9987091-30bc935d16fef72c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
       - Rep 用于引用计数
-  - 疑问?
+ - 疑问?
     - operator delete() 是如何对应上 operator new() 的
     - 若 new(size_t) 的版本对应 delete(void*, size_t), 那么 new(size_t, size_t) 的版本对应怎样的 delete(...)
